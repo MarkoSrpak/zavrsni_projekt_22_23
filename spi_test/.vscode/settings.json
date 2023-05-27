@@ -1,0 +1,24 @@
+{
+    "idf.adapterTargetName": "esp32c3",
+    "files.associations": {
+        "gpio.h": "c",
+        "freertos.h": "c",
+        "task.h": "c",
+        "portable.h": "c",
+        "portmacro.h": "c",
+        "esp_newlib.h": "c",
+        "reent.h": "c",
+        "esp_heap_caps.h": "c",
+        "led_strip.h": "c",
+        "spi_types.h": "c",
+        "type_traits": "c",
+        "*.inc": "c",
+        "sdkconfig.h": "c",
+        "spi_master.h": "c",
+        "spi_common.h": "c",
+        "stdio.h": "c",
+        "maxchip.h": "c",
+        "mdl_led.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "enabled"
+}

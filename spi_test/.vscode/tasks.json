@@ -1,0 +1,13 @@
+{   
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "preRun",
+            "type": "shell",
+            "windows": {
+                "command": "clear & start openocd -f board/esp32c3-ftdi.cfg & exit"
+            }
+        }
+    ]
+    
+}
