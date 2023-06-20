@@ -47,6 +47,9 @@ uint32_t max3_read_reg(uint8_t adress);
 //write data to adress
 void max3_write_reg(uint8_t adress, uint32_t data);
 
+//verify that INFO register is read correctly
+void max3_info_verify();
+
 //write 0 to SW_RST register to initiate reset of max30003
 void max3_software_reset();
 
@@ -67,3 +70,6 @@ void max3_ECG_rate_set(uint8_t mode);
 
 //set ECG gain, default 0b00
 void max3_ECG_gain_set(uint8_t mode);
+
+//read ECG FIFO register
+uint32_t max3_ECG_read();

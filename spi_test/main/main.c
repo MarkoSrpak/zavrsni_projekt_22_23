@@ -15,12 +15,19 @@ void app_main(void){
 
     LED_init();
     max3_init();
+    max3_info_verify();
+    
     max3_software_reset();
-    vTaskDelay(100);
-    while(1){
-        uint32_t result = max3_read_reg(MAX3_REG_INFO);
-        printf("result = %08lx\n", result);
-        vTaskDelay(100);
+    max3_ECG_enable(1);
+    uint32_t ECG_status;
+    while(1) {
+        ECG_status = max3_read_reg(MAX3_REG_STATUS);
+        if(ECG_status & 0x800000){
+         //   printf("ECG_status %08lx\n", ECG_status);
+            while(max3_ECG_read() != 0);
+        }
+      //  printf("%08lx\n", ECG_status);
+      vTaskDelay(1);
     }
     while(1){
         if (s_led_state) {
@@ -32,7 +39,7 @@ void app_main(void){
         }
         
 
-        printf("svjetli: %d\n", s_led_state);
+    //    printf("svjetli: %d\n", s_led_state);
         s_led_state = !s_led_state;
         vTaskDelay(100);
 

@@ -20,5 +20,6 @@
         "maxchip.h": "c",
         "mdl_led.h": "c"
     },
-    "C_Cpp.errorSquiggles": "enabled"
+    "C_Cpp.errorSquiggles": "enabled",
+    "idf.portWin": "COM3"
 }
