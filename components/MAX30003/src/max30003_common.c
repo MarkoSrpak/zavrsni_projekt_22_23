@@ -10,7 +10,7 @@
 #include "driver/spi_master.h"
 #include "hal/spi_types.h"
 
-#include "maxChip.h"
+#include "max30003_common.h"
 
 //GND -> GND
 //VCC -> 3.3V
@@ -57,10 +57,10 @@ void max3_init(){
     gpio_set_level(PIN_NUM_CS, 1);
 }
 
-uint32_t max3_transaction(uint8_t adress, uint8_t rwb, uint32_t data){
+uint32_t max3_transaction(uint8_t address, uint8_t rwb, uint32_t data){
     uint8_t transmit_buffer[4];
     memset(&transmit_buffer, 0, sizeof(transmit_buffer));
-    transmit_buffer[0] = (adress << 1) | (rwb & 0x01);
+    transmit_buffer[0] = (address << 1) | (rwb & 0x01);
     transmit_buffer[1] = (data >> 16) & 0xFF;
     transmit_buffer[2] = (data >> 8) & 0xFF;
     transmit_buffer[3] = data & 0xFF;
@@ -84,58 +84,93 @@ uint32_t max3_transaction(uint8_t adress, uint8_t rwb, uint32_t data){
     return recieved_data;
 }
 
-uint32_t max3_read_reg(uint8_t adress){
+uint32_t max3_read_reg(uint8_t address){
     esp_err_t ret = ESP_ERR_INVALID_ARG;
-    if(adress == MAX3_REG_NO_OP ||
-        adress == MAX3_REG_STATUS ||
-        adress == MAX3_REG_EN_INT || 
-        adress == MAX3_REG_EN_INT2 ||
-        adress == MAX3_REG_MNGR_INT ||
-        adress == MAX3_REG_MNGR_DYN ||
-        adress == MAX3_REG_INFO ||
-        adress == MAX3_REG_CNFG_GEN ||
-        adress == MAX3_REG_CNFG_CAL ||
-        adress == MAX3_REG_CNFG_EMUX ||
-        adress == MAX3_REG_CNFG_ECG ||
-        adress == MAX3_REG_CNFG_RTOR1 ||
-        adress == MAX3_REG_CNFG_RTOR2 ||
-        adress == MAX3_REG_ECG_FIFO ||
-        adress == MAX3_REG_RTOR ||
-        adress == MAX3_REG_NO_OP2){
+    if(address == MAX3_REG_NO_OP         ||
+        address == MAX3_REG_STATUS       ||
+        address == MAX3_REG_EN_INT       || 
+        address == MAX3_REG_EN_INT2      ||
+        address == MAX3_REG_MNGR_INT     ||
+        address == MAX3_REG_MNGR_DYN     ||
+        address == MAX3_REG_INFO         ||
+        address == MAX3_REG_CNFG_GEN     ||
+        address == MAX3_REG_CNFG_CAL     ||
+        address == MAX3_REG_CNFG_EMUX    ||
+        address == MAX3_REG_CNFG_ECG     ||
+        address == MAX3_REG_CNFG_RTOR1   ||
+        address == MAX3_REG_CNFG_RTOR2   ||
+        address == MAX3_REG_ECG_FIFO     ||
+        address == MAX3_REG_RTOR         ||
+        address == MAX3_REG_NO_OP2){
             ret = ESP_OK;
         }
     ESP_ERROR_CHECK(ret);
-    return max3_transaction(adress, 1, 0x00);
+    return max3_transaction(address, 1, 0x00);
 }
 
-void max3_write_reg(uint8_t adress, uint32_t data){
+void max3_write_reg(uint8_t address, uint32_t data){
     esp_err_t ret = ESP_ERR_INVALID_ARG;
-    if(adress == MAX3_REG_NO_OP ||
-        adress == MAX3_REG_EN_INT || 
-        adress == MAX3_REG_EN_INT2 ||
-        adress == MAX3_REG_MNGR_INT ||
-        adress == MAX3_REG_MNGR_DYN ||
-        adress == MAX3_REG_SW_RST ||
-        adress == MAX3_REG_SYNCH ||
-        adress == MAX3_REG_FIFO_RST ||
-        adress == MAX3_REG_CNFG_GEN ||
-        adress == MAX3_REG_CNFG_CAL ||
-        adress == MAX3_REG_CNFG_EMUX ||
-        adress == MAX3_REG_CNFG_ECG ||
-        adress == MAX3_REG_CNFG_RTOR1 ||
-        adress == MAX3_REG_CNFG_RTOR2 ||
-        adress == MAX3_REG_NO_OP2){
+    if(address == MAX3_REG_NO_OP         ||
+        address == MAX3_REG_EN_INT       || 
+        address == MAX3_REG_EN_INT2      ||
+        address == MAX3_REG_MNGR_INT     ||
+        address == MAX3_REG_MNGR_DYN     ||
+        address == MAX3_REG_SW_RST       ||
+        address == MAX3_REG_SYNCH        ||
+        address == MAX3_REG_FIFO_RST     ||
+        address == MAX3_REG_CNFG_GEN     ||
+        address == MAX3_REG_CNFG_CAL     ||
+        address == MAX3_REG_CNFG_EMUX    ||
+        address == MAX3_REG_CNFG_ECG     ||
+        address == MAX3_REG_CNFG_RTOR1   ||
+        address == MAX3_REG_CNFG_RTOR2   ||
+        address == MAX3_REG_NO_OP2){
             ret = ESP_OK;
         }
     ESP_ERROR_CHECK(ret);
-    max3_transaction(adress, 0, data);
+    max3_transaction(address, 0, data);
 }
+
+uint32_t max3_read_reg_bits(uint8_t address, uint8_t low_bit, uint8_t high_bit){
+    esp_err_t ret = ESP_OK;
+    if(low_bit < 0 || low_bit >= 24){
+        ret = ESP_ERR_INVALID_ARG;
+    }
+    if(high_bit < 0 || high_bit >= 24){
+        ret = ESP_ERR_INVALID_ARG;
+    }
+    if(low_bit > high_bit){
+        ret = ESP_ERR_INVALID_ARG;
+    }
+    ESP_ERROR_CHECK(ret);
+    uint32_t reg_bits = max3_read_reg(address);
+    reg_bits = reg_bits << (31 - high_bit);
+    reg_bits = reg_bits >> (31 - high_bit + low_bit);
+    return reg_bits;
+}
+
+void max3_write_reg_bits(uint8_t address, uint8_t low_bit, uint8_t high_bit, uint32_t data){
+    esp_err_t ret = ESP_OK;
+    if(low_bit < 0 || low_bit >= 24){
+        ret = ESP_ERR_INVALID_ARG;
+    }
+    if(high_bit < 0 || high_bit >= 24){
+        ret = ESP_ERR_INVALID_ARG;
+    }
+    if(low_bit > high_bit){
+        ret = ESP_ERR_INVALID_ARG;
+    }
+    ESP_ERROR_CHECK(ret);
+
+
+}
+
 
 void max3_info_verify(){
     max3_read_reg(MAX3_REG_NO_OP);
     uint32_t info_reg = max3_read_reg(MAX3_REG_INFO);
     esp_err_t ret = ESP_ERR_INVALID_RESPONSE;
-    if(info_reg >> 20 == 0x5){ 
+    if(info_reg >> 20 == 0x5){
         ret = ESP_OK;
         printf("MAX30003 initialised and working\n");
     }
@@ -144,108 +179,4 @@ void max3_info_verify(){
 
 void max3_software_reset(){
     max3_write_reg(MAX3_REG_SW_RST, 0x00);
-}
-
-void max3_synchronize(){
-    max3_write_reg(MAX3_REG_SYNCH, 0x00);
-}
-
-void max3_FIFO_reset(){
-    max3_write_reg(MAX3_REG_FIFO_RST, 0x00);
-}
-
-void max3_ECG_enable(uint8_t enable){
-    uint32_t cnfg_reg = max3_read_reg(MAX3_REG_CNFG_GEN);
-    if(enable){
-        max3_write_reg(MAX3_REG_CNFG_GEN, cnfg_reg | (1 << 19));
-    }
-    else{
-        max3_write_reg(MAX3_REG_CNFG_GEN, cnfg_reg & ~(1 << 19));
-    }
-}
-
-void max3_FMSTR_set(uint8_t mode){
-    uint32_t cnfg_reg = max3_read_reg(MAX3_REG_CNFG_GEN);
-    cnfg_reg &= ~(0x300000);
-    cnfg_reg |= (mode & 0x3) << 20;
-    max3_write_reg(MAX3_REG_CNFG_GEN, cnfg_reg);
-}
-
-void max3_ECG_rate_set(uint8_t mode){
-    uint32_t cnfg_reg = max3_read_reg(MAX3_REG_CNFG_ECG);
-    cnfg_reg &= ~(0xC00000);
-    cnfg_reg |= (mode & 0x3) << 22;
-    max3_write_reg(MAX3_REG_CNFG_ECG, cnfg_reg);
-}
-
-void max3_ECG_gain_set(uint8_t mode){
-    uint32_t cnfg_reg = max3_read_reg(MAX3_REG_CNFG_ECG);
-    cnfg_reg &= ~(0x30000);
-    cnfg_reg |= (mode & 0x3) << 16;
-    max3_write_reg(MAX3_REG_CNFG_ECG, cnfg_reg);
-}
-
-void max3_ECG_digital_high_pass_filter_set(uint8_t mode){
-    uint32_t cnfg_reg = max3_read_reg(MAX3_REG_CNFG_ECG);
-    cnfg_reg &= ~(0x4000);
-    cnfg_reg |= (mode & 0x1) << 14;
-    max3_write_reg(MAX3_REG_CNFG_ECG, cnfg_reg);
-}
-
-void max3_ECG_digital_low_pass_filter_set(uint8_t mode){
-    uint32_t cnfg_reg = max3_read_reg(MAX3_REG_CNFG_ECG);
-    cnfg_reg &= ~(0x3000);
-    cnfg_reg |= (mode & 0x3) << 12;
-    max3_write_reg(MAX3_REG_CNFG_ECG, cnfg_reg);
-}
-
-uint32_t max3_ECG_read(){
-    uint32_t ECG_data = max3_read_reg(MAX3_REG_ECG_FIFO);
-    uint32_t ECG_sample = (ECG_data & 0xFFFFC0) >> 5;
-    if(ECG_sample & 0x20000) ECG_sample |= 0xFFFC0000; //ako je 18 bitni negativan, pretvori u 32 bitni negativan
-    uint8_t ETAG = (ECG_data & 0x38) >> 3;
- //   printf("ETAG %d\n", ETAG);
-    if(ETAG == 0){ //valid sample
-        printf("%ld\n", ECG_sample);
-        return 1;
-    }
-    if(ETAG == 1){ //fast - not valid data, valid time
-    }
-    if(ETAG == 2){ //valid, EOF
-        printf("%ld\n", ECG_sample);
-        return 0;
-    }
-    if(ETAG == 3){ //fast - not valid data, valid time, EOF
-
-    }
-    //ETAG 4 and 5 are not used
-    if(ETAG == 6){ //FIFO is empty
-        return 0;
-    }
-    if(ETAG == 7){ //FIFO is in overflow
-        max3_FIFO_reset();
-        return 0;
-    }
-    return 0;
-}
-
-void max3_RTOR_enable(uint8_t enable){
-    uint32_t cnfg_reg = max3_read_reg(MAX3_REG_CNFG_RTOR1);
-    if(enable){
-        max3_write_reg(MAX3_REG_CNFG_RTOR1, cnfg_reg | (1 << 15));
-    }
-    else{
-        max3_write_reg(MAX3_REG_CNFG_RTOR1, cnfg_reg & ~(1 << 15));
-    }
-}
-
-uint32_t max3_RTOR_read(){
-    return max3_read_reg(MAX3_REG_RTOR) >> 10;
-}
-
-void max3_RTOR_interrupt_behaviour(uint8_t mode){
-    uint32_t cnfg_reg = max3_read_reg(MAX3_REG_MNGR_INT);
-    cnfg_reg &= ~(0x30);
-    cnfg_reg |= (mode & 0x3) << 4;
-    max3_write_reg(MAX3_REG_MNGR_INT, cnfg_reg);
 }

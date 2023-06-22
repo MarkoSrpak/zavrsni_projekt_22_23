@@ -18,7 +18,8 @@
         "spi_common.h": "c",
         "stdio.h": "c",
         "maxchip.h": "c",
-        "mdl_led.h": "c"
+        "mdl_led.h": "c",
+        "max30003_common.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "idf.portWin": "COM3"

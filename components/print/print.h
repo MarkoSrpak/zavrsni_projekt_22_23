@@ -1,1 +1,0 @@
-void myPrint(int a);

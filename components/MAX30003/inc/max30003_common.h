@@ -1,3 +1,6 @@
+#ifndef MAX30003_COMMON_H
+#define MAX30003_COMMON_H
+
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -39,13 +42,13 @@ void max3_init();
 //1-bit RWB, 1=read, 0=write
 //24-bit data sent
 //24-bit data recieved
-uint32_t max3_transaction(uint8_t adress, uint8_t rwb, uint32_t data);
+uint32_t max3_transaction(uint8_t address, uint8_t rwb, uint32_t data);
 
 //read register at adress
-uint32_t max3_read_reg(uint8_t adress);
+uint32_t max3_read_reg(uint8_t address);
 
 //write data to adress
-void max3_write_reg(uint8_t adress, uint32_t data);
+void max3_write_reg(uint8_t address, uint32_t data);
 
 //verify that INFO register is read correctly
 void max3_info_verify();
@@ -53,44 +56,4 @@ void max3_info_verify();
 //write 0 to SW_RST register to initiate reset of max30003
 void max3_software_reset();
 
-//write 0 to SYNCH register to initiate sync of max30003
-void max3_synchronize();
-
-//write 0 to FIFO_RST register to reset FIFO memories
-void max3_FIFO_reset();
-
-//EN_ECG bit in CNFG_GEN, true or false
-void max3_ECG_enable(uint8_t enable);
-
-//set master freq, default 0b00
-void max3_FMSTR_set(uint8_t mode);
-
-//set ECG rate, default 0b10
-void max3_ECG_rate_set(uint8_t mode);
-
-//set ECG gain, default 0b00
-void max3_ECG_gain_set(uint8_t mode);
-
-//0 = bypass (DC), 1 = 0.50Hz (default)
-void max3_ECG_digital_high_pass_filter_set(uint8_t mode);
-
-//00 = bypass
-//01 = 40Hz (default)
-//10 = 100Hz
-//11 = 150Hz
-void max3_ECG_digital_low_pass_filter_set(uint8_t mode);
-
-//00 on STATUS readback, default
-//01 on RTOR readback
-//10 self clear afterecg cycle
-//11 do not use
-void max3_RTOR_interrupt_behaviour(uint8_t mode);
-
-//read ECG FIFO register
-uint32_t max3_ECG_read();
-
-//enable RTOR detection
-void max3_RTOR_enable(uint8_t enable);
-
-//read RTOR register
-uint32_t max3_RTOR_read();
+#endif /*MAX30003_COMMON_H*/

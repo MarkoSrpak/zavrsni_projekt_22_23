@@ -7,7 +7,9 @@
 #include "MDL_LED.h"
 
 #include "print.h"
-#include "maxChip.h"
+#include "max30003_common.h"
+#include "max30003_ECG.h"
+#include "max30003_RTOR.h"
 
 static uint8_t s_led_state = 0;
 
