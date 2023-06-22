@@ -6,7 +6,6 @@
 #include "sdkconfig.h"
 #include "MDL_LED.h"
 
-#include "print.h"
 #include "max30003_common.h"
 #include "max30003_ECG.h"
 #include "max30003_RTOR.h"

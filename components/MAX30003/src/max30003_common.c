@@ -57,6 +57,7 @@ void max3_init(){
     gpio_set_level(PIN_NUM_CS, 1);
 }
 
+
 uint32_t max3_transaction(uint8_t address, uint8_t rwb, uint32_t data){
     uint8_t transmit_buffer[4];
     memset(&transmit_buffer, 0, sizeof(transmit_buffer));
@@ -84,11 +85,12 @@ uint32_t max3_transaction(uint8_t address, uint8_t rwb, uint32_t data){
     return recieved_data;
 }
 
+
 uint32_t max3_read_reg(uint8_t address){
     esp_err_t ret = ESP_ERR_INVALID_ARG;
     if(address == MAX3_REG_NO_OP         ||
         address == MAX3_REG_STATUS       ||
-        address == MAX3_REG_EN_INT       || 
+        address == MAX3_REG_EN_INT       ||
         address == MAX3_REG_EN_INT2      ||
         address == MAX3_REG_MNGR_INT     ||
         address == MAX3_REG_MNGR_DYN     ||
@@ -108,10 +110,11 @@ uint32_t max3_read_reg(uint8_t address){
     return max3_transaction(address, 1, 0x00);
 }
 
+
 void max3_write_reg(uint8_t address, uint32_t data){
     esp_err_t ret = ESP_ERR_INVALID_ARG;
     if(address == MAX3_REG_NO_OP         ||
-        address == MAX3_REG_EN_INT       || 
+        address == MAX3_REG_EN_INT       ||
         address == MAX3_REG_EN_INT2      ||
         address == MAX3_REG_MNGR_INT     ||
         address == MAX3_REG_MNGR_DYN     ||
@@ -131,12 +134,13 @@ void max3_write_reg(uint8_t address, uint32_t data){
     max3_transaction(address, 0, data);
 }
 
+
 uint32_t max3_read_reg_bits(uint8_t address, uint8_t low_bit, uint8_t high_bit){
     esp_err_t ret = ESP_OK;
-    if(low_bit < 0 || low_bit >= 24){
+    if(low_bit >= 24){
         ret = ESP_ERR_INVALID_ARG;
     }
-    if(high_bit < 0 || high_bit >= 24){
+    if(high_bit >= 24){
         ret = ESP_ERR_INVALID_ARG;
     }
     if(low_bit > high_bit){
@@ -149,28 +153,39 @@ uint32_t max3_read_reg_bits(uint8_t address, uint8_t low_bit, uint8_t high_bit){
     return reg_bits;
 }
 
+
 void max3_write_reg_bits(uint8_t address, uint8_t low_bit, uint8_t high_bit, uint32_t data){
     esp_err_t ret = ESP_OK;
-    if(low_bit < 0 || low_bit >= 24){
+    if(low_bit >= 24){
         ret = ESP_ERR_INVALID_ARG;
     }
-    if(high_bit < 0 || high_bit >= 24){
+    if(high_bit >= 24){
         ret = ESP_ERR_INVALID_ARG;
     }
     if(low_bit > high_bit){
         ret = ESP_ERR_INVALID_ARG;
     }
+    if(1 << (high_bit - low_bit + 1) < data){
+        ret = ESP_ERR_INVALID_ARG;
+    }
     ESP_ERROR_CHECK(ret);
-
-
+    uint32_t reg_bits = max3_read_reg(address);
+    uint32_t bits_mask = 0xFFFFFFFF;
+    bits_mask = bits_mask << (31 - high_bit);
+    bits_mask = bits_mask >> (31 - high_bit + low_bit);
+    bits_mask = bits_mask << low_bit;
+    reg_bits = reg_bits & ~bits_mask;
+    reg_bits = reg_bits | (data << low_bit);
+    max3_write_reg(address, reg_bits);
+    return;
 }
 
 
 void max3_info_verify(){
     max3_read_reg(MAX3_REG_NO_OP);
-    uint32_t info_reg = max3_read_reg(MAX3_REG_INFO);
+    uint32_t info_bits = max3_read_reg_bits(MAX3_REG_INFO, 20, 23);
     esp_err_t ret = ESP_ERR_INVALID_RESPONSE;
-    if(info_reg >> 20 == 0x5){
+    if(info_bits == 0x5){
         ret = ESP_OK;
         printf("MAX30003 initialised and working\n");
     }

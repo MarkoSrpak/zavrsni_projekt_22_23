@@ -44,11 +44,17 @@ void max3_init();
 //24-bit data recieved
 uint32_t max3_transaction(uint8_t address, uint8_t rwb, uint32_t data);
 
-//read register at adress
+//read register at address
 uint32_t max3_read_reg(uint8_t address);
 
-//write data to adress
+//write data to address
 void max3_write_reg(uint8_t address, uint32_t data);
+
+//read bits from low to high on address
+uint32_t max3_read_reg_bits(uint8_t address, uint8_t low_bit, uint8_t high_bit);
+
+//write bits from low to high on address, others unchanged
+void max3_write_reg_bits(uint8_t address, uint8_t low_bit, uint8_t high_bit, uint32_t data);
 
 //verify that INFO register is read correctly
 void max3_info_verify();

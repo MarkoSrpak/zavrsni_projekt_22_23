@@ -18,5 +18,4 @@ void max3_RTOR_enable(uint8_t enable);
 //read RTOR register
 uint32_t max3_RTOR_read();
 
-
 #endif /*MAX30003_RTOR_H*/
