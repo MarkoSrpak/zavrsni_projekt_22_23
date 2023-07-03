@@ -6,6 +6,8 @@
 #include "max30003_common.h"
 #include "max30003_ECG.h"
 
+#include "TCPsocket.h"
+
 
 void max3_synchronize(){
     max3_write_reg(MAX3_REG_SYNCH, 0x00);
@@ -54,16 +56,17 @@ uint32_t max3_ECG_read(){
     if(ECG_sample & 0x20000) ECG_sample |= 0xFFFC0000; //ako je 18 bitni negativan, pretvori u 32 bitni negativan
     uint8_t ETAG = (ECG_data & 0x38) >> 3;
  //   printf("ETAG %d\n", ETAG);
-    if(ETAG == 0){ //valid sample
+    if(ETAG == 0 || ETAG == 2){ //valid sample
         printf("%ld\n", ECG_sample);
-        return 1;
+        tcp_send_data(ECG_sample);
+        if(ETAG == 0)
+            return 1;
+        else
+            return 0;
     }
     if(ETAG == 1){ //fast - not valid data, valid time
     }
-    if(ETAG == 2){ //valid, EOF
-        printf("%ld\n", ECG_sample);
-        return 0;
-    }
+
     if(ETAG == 3){ //fast - not valid data, valid time, EOF
 
     }

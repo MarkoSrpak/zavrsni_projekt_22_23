@@ -4,6 +4,8 @@
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
+#include "esp_log.h"
+
 #include "driver/gpio.h"
 
 #include "driver/spi_common.h"
@@ -18,6 +20,8 @@
 //SDO(MISO) -> GPIO0
 //SCK(CLK) -> GPIO1
 //CS(SS) -> GPIO10
+
+static const char *TAG = "max30003";
 
 static spi_bus_config_t spi_bus_config = {
     .mosi_io_num = PIN_NUM_MOSI,
@@ -187,7 +191,7 @@ void max3_info_verify(){
     esp_err_t ret = ESP_ERR_INVALID_RESPONSE;
     if(info_bits == 0x5){
         ret = ESP_OK;
-        printf("MAX30003 initialised and working\n");
+        ESP_LOGI(TAG, "MAX30003 initialised and working");
     }
     ESP_ERROR_CHECK(ret);
 }
