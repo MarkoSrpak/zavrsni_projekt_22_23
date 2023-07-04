@@ -19,7 +19,16 @@
         "stdio.h": "c",
         "maxchip.h": "c",
         "mdl_led.h": "c",
-        "max30003_common.h": "c"
+        "max30003_common.h": "c",
+        "projdefs.h": "c",
+        "err.h": "c",
+        "esp_wifi.h": "c",
+        "wifi.h": "c",
+        "esp_event.h": "c",
+        "esp_log.h": "c",
+        "esp_err.h": "c",
+        "nvs_flash.h": "c",
+        "tcpsocket.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "idf.portWin": "COM3"

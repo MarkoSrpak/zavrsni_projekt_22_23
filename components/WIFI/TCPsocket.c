@@ -19,11 +19,8 @@
 #include "TCPsocket.h"
 
 
-#define HOST_IP_ADDR "192.168.175.121"
-#define PORT 3333
+static const char *TAG = "TCP socket";
 
-static const char *TAG = "example";
-static const char *payload = "Message from ESP32 ";
 static int sock;
 
 void tcp_socket_init(){
