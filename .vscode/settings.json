@@ -28,7 +28,11 @@
         "esp_log.h": "c",
         "esp_err.h": "c",
         "nvs_flash.h": "c",
-        "tcpsocket.h": "c"
+        "tcpsocket.h": "c",
+        "max30003_rtor.h": "c",
+        "max30003_ecg.h": "c",
+        "mdl_wifi.h": "c",
+        "functional": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "idf.portWin": "COM3"

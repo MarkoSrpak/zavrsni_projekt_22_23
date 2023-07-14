@@ -8,7 +8,7 @@
 
 //00 on STATUS readback, default
 //01 on RTOR readback
-//10 self clear afterecg cycle
+//10 self clear after ecg cycle
 //11 do not use
 void max3_RTOR_interrupt_behaviour(uint8_t mode);
 

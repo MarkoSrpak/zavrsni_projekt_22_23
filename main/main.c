@@ -17,30 +17,37 @@ void app_main(void){
 
     wifi_init();
     tcp_socket_init();
-    tcp_send_data();
-    
     LED_init();
     max3_init();
     max3_info_verify();
     
     max3_software_reset();
-    max3_ECG_rate_set(2);
-    max3_ECG_gain_set(3);
+
+    max3_FMSTR_set(0);
+    max3_ECG_rate_set(0);
+    max3_ECG_gain_set(0);
     max3_ECG_enable(1);
 
     max3_RTOR_enable(1);
     max3_RTOR_interrupt_behaviour(1);
     max3_synchronize();
     uint32_t ECG_status;
-    float heart_rate = max3_RTOR_read();
+  //  float heart_rate = max3_RTOR_read();
     while(1) {
         ECG_status = max3_read_reg(MAX3_REG_STATUS);
         if(ECG_status & 0x800000){
          //   printf("ECG_status %08lx\n", ECG_status);
-            while(max3_ECG_read() != 0);
+            while(1){
+                uint32_t ECG_sample = 0;
+                uint32_t result = max3_ECG_read(&ECG_sample);
+                if(result == -1) break;
+                printf("%ld\n", ECG_sample);
+                tcp_send_data(ECG_sample);
+                if(result == 0) break;
+            }
         }
         if(ECG_status & 0x400){
-            heart_rate = 1000.f * 60.f / (7.8125f * max3_RTOR_read());
+         //   heart_rate = 1000.f * 60.f / (7.8125f * max3_RTOR_read());
           //  printf("%f\n", heart_rate);
         }
       //  printf("%08lx\n", ECG_status);

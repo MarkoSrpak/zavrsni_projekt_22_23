@@ -8,7 +8,6 @@
 
 #include "TCPsocket.h"
 
-
 void max3_synchronize(){
     max3_write_reg(MAX3_REG_SYNCH, 0x00);
 }
@@ -50,33 +49,33 @@ void max3_ECG_digital_low_pass_filter_set(uint8_t mode){
     max3_write_reg_bits(MAX3_REG_CNFG_ECG, 12, 13, mode);
 }
 
-uint32_t max3_ECG_read(){
+uint32_t max3_ECG_read(uint32_t *ECG_record){
     uint32_t ECG_data = max3_read_reg(MAX3_REG_ECG_FIFO);
     uint32_t ECG_sample = (ECG_data & 0xFFFFC0) >> 5;
     if(ECG_sample & 0x20000) ECG_sample |= 0xFFFC0000; //ako je 18 bitni negativan, pretvori u 32 bitni negativan
     uint8_t ETAG = (ECG_data & 0x38) >> 3;
  //   printf("ETAG %d\n", ETAG);
-    if(ETAG == 0 || ETAG == 2){ //valid sample
-        printf("%ld\n", ECG_sample);
-        tcp_send_data(ECG_sample);
-        if(ETAG == 0)
-            return 1;
-        else
-            return 0;
+    *ECG_record = ECG_sample;
+    if(ETAG == 0){ //valid sample
+        return 1;
     }
     if(ETAG == 1){ //fast - not valid data, valid time
+        return 1;
     }
-
-    if(ETAG == 3){ //fast - not valid data, valid time, EOF
-
-    }
-    //ETAG 4 and 5 are not used
-    if(ETAG == 6){ //FIFO is empty
+    if(ETAG == 2){ //valid sample, EOF
         return 0;
     }
-    if(ETAG == 7){ //FIFO is in overflow
+    if(ETAG == 3){ //fast - not valid data, valid time, EOF
         max3_FIFO_reset();
         return 0;
     }
-    return 0;
+    //ETAG 4 and 5 are not used
+    if(ETAG == 6){ //FIFO is empty
+        return -1;
+    }
+    if(ETAG == 7){ //FIFO is in overflow
+        max3_FIFO_reset();
+        return -1;
+    }
+    return -1;
 }

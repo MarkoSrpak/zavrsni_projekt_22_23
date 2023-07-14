@@ -58,7 +58,7 @@ void tcp_send_data(uint32_t data){
     sprintf(buffer, "%ld\n", data);
     int err = send(sock, buffer, strlen(buffer), 0);
     if (err < 0) {
-        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+      //  ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
     }
 }
 
